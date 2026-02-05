@@ -3,6 +3,7 @@
 import { useState } from 'react'
 import { usePosts } from '@/hooks/use-posts'
 import { PostCard } from '@/components/posts/post-card'
+import { PostComposerModal } from '@/components/posts/post-composer-modal'
 import { Button } from '@/components/ui/button'
 import { Plus } from 'lucide-react'
 
@@ -16,6 +17,7 @@ const categories = [
 
 export default function DashboardPage() {
   const [category, setCategory] = useState('all')
+  const [isComposerOpen, setIsComposerOpen] = useState(false)
   const { data: posts, isLoading } = usePosts(
     category === 'all' ? undefined : category
   )
@@ -29,7 +31,7 @@ export default function DashboardPage() {
             Connect with fellow LGBTQ+ founders
           </p>
         </div>
-        <Button>
+        <Button onClick={() => setIsComposerOpen(true)}>
           <Plus className="mr-2 h-4 w-4" />
           New Post
         </Button>
@@ -64,6 +66,12 @@ export default function DashboardPage() {
           </div>
         )}
       </div>
+
+      {/* Post Composer Modal */}
+      <PostComposerModal
+        open={isComposerOpen}
+        onClose={() => setIsComposerOpen(false)}
+      />
     </div>
   )
 }

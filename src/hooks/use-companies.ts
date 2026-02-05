@@ -63,3 +63,24 @@ export function useCompany(slug: string) {
     },
   })
 }
+
+export function useCompanySearch(search: string) {
+  const supabase = createClient()
+
+  return useQuery({
+    queryKey: ['company-search', search],
+    queryFn: async () => {
+      if (!search || search.length < 2) return []
+
+      const { data, error } = await supabase
+        .from('companies')
+        .select('id, name, slug, tagline')
+        .ilike('name', `%${search}%`)
+        .limit(10)
+
+      if (error) throw error
+      return data || []
+    },
+    enabled: search.length >= 2,
+  })
+}

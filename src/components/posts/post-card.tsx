@@ -1,11 +1,13 @@
 'use client'
 
-import { useState } from 'react'
+import { useState, useEffect } from 'react'
 import Link from 'next/link'
 import { formatDistanceToNow } from 'date-fns'
 import { MessageCircle, Eye, ThumbsUp } from 'lucide-react'
 import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar'
 import { Badge } from '@/components/ui/badge'
+import { useReactions, useToggleReaction } from '@/hooks/use-posts'
+import { createClient } from '@/lib/supabase/client'
 
 interface PostCardProps {
   post: {
@@ -25,8 +27,30 @@ interface PostCardProps {
 
 export function PostCard({ post }: PostCardProps) {
   const [isExpanded, setIsExpanded] = useState(false)
+  const [currentUserId, setCurrentUserId] = useState<string | null>(null)
   const contentPreview = post.content.substring(0, 300)
   const needsExpansion = post.content.length > 300
+  const supabase = createClient()
+
+  const { data: reactions } = useReactions(post.id)
+  const { mutate: toggleReaction, isPending } = useToggleReaction()
+
+  useEffect(() => {
+    const getUser = async () => {
+      const {
+        data: { user },
+      } = await supabase.auth.getUser()
+      setCurrentUserId(user?.id || null)
+    }
+    getUser()
+  }, [])
+
+  const likeCount = reactions?.length || 0
+  const hasLiked = reactions?.some((r) => r.user_id === currentUserId)
+
+  const handleLike = () => {
+    toggleReaction({ postId: post.id })
+  }
 
   return (
     <div className="rounded-lg border bg-white p-6 shadow-sm transition-shadow hover:shadow-md">
@@ -82,14 +106,23 @@ export function PostCard({ post }: PostCardProps) {
           <Eye className="h-4 w-4" />
           <span>{post.view_count}</span>
         </div>
-        <button className="flex items-center gap-2 hover:text-blue-600">
-          <ThumbsUp className="h-4 w-4" />
-          <span>Like</span>
+        <button
+          onClick={handleLike}
+          disabled={isPending}
+          className={`flex items-center gap-2 transition-colors ${
+            hasLiked ? 'text-blue-600' : 'hover:text-blue-600'
+          }`}
+        >
+          <ThumbsUp className={`h-4 w-4 ${hasLiked ? 'fill-blue-600' : ''}`} />
+          <span>{likeCount > 0 ? likeCount : 'Like'}</span>
         </button>
-        <button className="flex items-center gap-2 hover:text-blue-600">
+        <Link
+          href={`/posts/${post.id}`}
+          className="flex items-center gap-2 hover:text-blue-600"
+        >
           <MessageCircle className="h-4 w-4" />
           <span>Comment</span>
-        </button>
+        </Link>
       </div>
     </div>
   )

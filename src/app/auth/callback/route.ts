@@ -4,14 +4,29 @@ import { NextResponse } from 'next/server'
 export async function GET(request: Request) {
   const { searchParams, origin } = new URL(request.url)
   const code = searchParams.get('code')
-  const next = searchParams.get('next') ?? '/dashboard'
 
   if (code) {
     const supabase = await createClient()
     const { error } = await supabase.auth.exchangeCodeForSession(code)
 
     if (!error) {
-      return NextResponse.redirect(`${origin}${next}`)
+      // Check if user needs onboarding
+      const { data: { user } } = await supabase.auth.getUser()
+
+      if (user) {
+        const { data: profile } = await supabase
+          .from('profiles')
+          .select('full_name, headline')
+          .eq('id', user.id)
+          .single()
+
+        // Redirect to onboarding if profile is incomplete
+        if (!profile?.full_name || !profile?.headline) {
+          return NextResponse.redirect(`${origin}/onboarding`)
+        }
+      }
+
+      return NextResponse.redirect(`${origin}/dashboard`)
     }
   }
 

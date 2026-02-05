@@ -49,6 +49,11 @@ export async function middleware(request: NextRequest) {
     return NextResponse.redirect(new URL('/dashboard', request.url))
   }
 
+  // Allow onboarding for authenticated users
+  if (user && request.nextUrl.pathname.startsWith('/onboarding')) {
+    return response
+  }
+
   return response
 }
 
