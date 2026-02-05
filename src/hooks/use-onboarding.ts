@@ -69,9 +69,11 @@ export function useOnboarding() {
           .eq('is_primary', true)
           .single()
 
-        if (existingLink?.company) {
+        const existingCompany = existingLink?.company as any
+
+        if (existingCompany) {
           // Update existing company
-          console.log('Updating existing company:', existingLink.company.id)
+          console.log('Updating existing company:', existingCompany.id)
           const { error: updateError } = await supabase
             .from('companies')
             .update({
@@ -82,7 +84,7 @@ export function useOnboarding() {
               logo_url: data.company_logo_url || null,
               tags: data.company_tags || [],
             })
-            .eq('id', existingLink.company.id)
+            .eq('id', existingCompany.id)
 
           if (updateError) {
             console.error('Company update error:', updateError)

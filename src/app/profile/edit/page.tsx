@@ -81,7 +81,7 @@ export default function EditProfilePage() {
           .eq('is_primary', true)
           .single()
 
-        const company = companyLink?.company
+        const company = companyLink?.company as any
 
         setFormData({
           full_name: profile.full_name || '',

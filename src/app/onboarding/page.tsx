@@ -9,12 +9,41 @@ import { InterestsStep } from '@/components/onboarding/interests-step'
 
 const STORAGE_KEY = 'prism-focus-onboarding'
 
+type OnboardingFormData = {
+  // Personal info
+  full_name: string
+  headline: string
+  bio: string
+  location: string
+  avatar_url: string
+  pronouns: string
+  twitter_handle: string
+  linkedin_url: string
+  github_handle: string
+  website: string
+
+  // Company info
+  company_name: string
+  company_tagline: string
+  company_description: string
+  company_website: string
+  company_logo_url: string
+  company_stage: string
+  company_tags: string[]
+
+  // Interests & community
+  interests: string[]
+  looking_for: string[]
+  can_help_with: string
+  identity_tags: string[]
+}
+
 export default function OnboardingPage() {
   const [currentStep, setCurrentStep] = useState(1)
   const { saveOnboarding, loading, error } = useOnboarding()
 
   // Load from localStorage on mount
-  const [formData, setFormData] = useState(() => {
+  const [formData, setFormData] = useState<OnboardingFormData>(() => {
     if (typeof window !== 'undefined') {
       const saved = localStorage.getItem(STORAGE_KEY)
       if (saved) {
@@ -26,32 +55,34 @@ export default function OnboardingPage() {
       }
     }
     return {
-    // Personal info
-    full_name: '',
-    headline: '',
-    bio: '',
-    location: '',
-    avatar_url: '',
-    pronouns: '',
-    twitter_handle: '',
-    linkedin_url: '',
-    github_handle: '',
-    website: '',
+      // Personal info
+      full_name: '',
+      headline: '',
+      bio: '',
+      location: '',
+      avatar_url: '',
+      pronouns: '',
+      twitter_handle: '',
+      linkedin_url: '',
+      github_handle: '',
+      website: '',
 
-    // Company info
-    company_name: '',
-    company_tagline: '',
-    company_description: '',
-    company_website: '',
-    company_stage: '',
-    company_tags: [] as string[],
+      // Company info
+      company_name: '',
+      company_tagline: '',
+      company_description: '',
+      company_website: '',
+      company_logo_url: '',
+      company_stage: '',
+      company_tags: [],
 
-    // Interests & community
-    interests: [] as string[],
-    looking_for: [] as string[],
-    can_help_with: '',
-    identity_tags: [] as string[],
-  }})
+      // Interests & community
+      interests: [],
+      looking_for: [],
+      can_help_with: '',
+      identity_tags: [],
+    }
+  })
   const router = useRouter()
 
   const totalSteps = 3
