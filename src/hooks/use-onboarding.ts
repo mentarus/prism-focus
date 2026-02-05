@@ -42,6 +42,7 @@ export function useOnboarding() {
           looking_for: data.looking_for || [],
           identity_tags: data.identity_tags || [],
           can_help_with: data.can_help_with || null,
+          onboarding_completed: true,
           updated_at: new Date().toISOString(),
         })
         .eq('id', user.id)
