@@ -1,0 +1,65 @@
+'use client'
+
+import { useQuery } from '@tanstack/react-query'
+import { createClient } from '@/lib/supabase/client'
+
+export function useCompanies(search?: string) {
+  const supabase = createClient()
+
+  return useQuery({
+    queryKey: ['companies', search],
+    queryFn: async () => {
+      let query = supabase
+        .from('companies')
+        .select(`
+          *,
+          company_founders!company_id (
+            role,
+            is_primary,
+            founder:profiles (
+              id,
+              full_name,
+              avatar_url
+            )
+          )
+        `)
+        .order('created_at', { ascending: false })
+
+      if (search) {
+        query = query.or(
+          `name.ilike.%${search}%,tagline.ilike.%${search}%,description.ilike.%${search}%`
+        )
+      }
+
+      const { data, error } = await query
+
+      if (error) throw error
+      return data
+    },
+  })
+}
+
+export function useCompany(slug: string) {
+  const supabase = createClient()
+
+  return useQuery({
+    queryKey: ['company', slug],
+    queryFn: async () => {
+      const { data, error } = await supabase
+        .from('companies')
+        .select(`
+          *,
+          company_founders!company_id (
+            role,
+            is_primary,
+            founder:profiles (*)
+          )
+        `)
+        .eq('slug', slug)
+        .single()
+
+      if (error) throw error
+      return data
+    },
+  })
+}
