@@ -16,12 +16,12 @@ export async function GET(request: Request) {
       if (user) {
         const { data: profile } = await supabase
           .from('profiles')
-          .select('full_name, headline')
+          .select('onboarding_completed')
           .eq('id', user.id)
           .single()
 
-        // Redirect to onboarding if profile is incomplete
-        if (!profile?.full_name || !profile?.headline) {
+        // Redirect to onboarding if not completed
+        if (!profile?.onboarding_completed) {
           return NextResponse.redirect(`${origin}/onboarding`)
         }
       }
