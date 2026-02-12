@@ -2,6 +2,7 @@
 
 import { useEffect, useState } from 'react'
 import Link from 'next/link'
+import Image from 'next/image'
 import { usePathname, useRouter } from 'next/navigation'
 import { cn } from '@/lib/utils'
 import { Home, Users, Building2, LogOut, User } from 'lucide-react'
@@ -43,7 +44,14 @@ export function Sidebar() {
 
   return (
     <div className="flex h-screen w-64 flex-col border-r bg-white">
-      <div className="flex h-16 items-center border-b px-6">
+      <div className="flex h-16 items-center border-b px-6 gap-3">
+        <Image
+          src="/assets/prism_logo.png"
+          alt="Prism Focus Logo"
+          width={32}
+          height={32}
+          className="h-8 w-8"
+        />
         <h1 className="text-xl font-bold text-gray-900">Prism Focus</h1>
       </div>
 

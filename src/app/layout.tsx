@@ -6,6 +6,9 @@ import { Sidebar } from '@/components/layout/sidebar'
 export const metadata: Metadata = {
   title: "Prism Focus - LGBTQ+ Founder Community",
   description: "A community platform for LGBTQ+ founders to connect, share, and grow together.",
+  icons: {
+    icon: "/assets/prism_logo.png",
+  },
 };
 
 export default function RootLayout({

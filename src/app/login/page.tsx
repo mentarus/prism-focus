@@ -1,6 +1,7 @@
 'use client'
 
 import { useState } from 'react'
+import Image from 'next/image'
 import { createClient } from '@/lib/supabase/client'
 import { Button } from '@/components/ui/button'
 import { Input } from '@/components/ui/input'
@@ -41,6 +42,15 @@ export default function LoginPage() {
     <div className="flex min-h-screen items-center justify-center bg-gray-50 px-4">
       <Card className="w-full max-w-md">
         <CardHeader className="text-center">
+          <div className="flex justify-center mb-4">
+            <Image
+              src="/assets/prism_logo.png"
+              alt="Prism Focus Logo"
+              width={64}
+              height={64}
+              className="h-16 w-16"
+            />
+          </div>
           <CardTitle className="text-3xl font-bold">Prism Focus</CardTitle>
           <CardDescription>LGBTQ+ Founder Community</CardDescription>
         </CardHeader>
