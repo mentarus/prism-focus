@@ -2,7 +2,6 @@
 
 import { useState } from 'react'
 import Image from 'next/image'
-import { createClient } from '@/lib/supabase/client'
 import { Button } from '@/components/ui/button'
 import { Input } from '@/components/ui/input'
 import { Label } from '@/components/ui/label'
@@ -12,33 +11,33 @@ export default function LoginPage() {
   const [email, setEmail] = useState('')
   const [loading, setLoading] = useState(false)
   const [message, setMessage] = useState<{ type: 'success' | 'error'; text: string } | null>(null)
-  const supabase = createClient()
 
   const handleMagicLink = async (e: React.FormEvent) => {
     e.preventDefault()
     setLoading(true)
     setMessage(null)
 
-    const redirectUrl = `${process.env.NEXT_PUBLIC_APP_URL || window.location.origin}/auth/callback`
-    console.log('Magic link redirect URL:', redirectUrl)
-    console.log('NEXT_PUBLIC_APP_URL:', process.env.NEXT_PUBLIC_APP_URL)
-
-    const { error } = await supabase.auth.signInWithOtp({
-      email,
-      options: {
-        emailRedirectTo: redirectUrl,
-      },
-    })
-
-    setLoading(false)
-
-    if (error) {
-      setMessage({ type: 'error', text: error.message })
-    } else {
-      setMessage({
-        type: 'success',
-        text: 'Check your email for the magic link!',
+    try {
+      const res = await fetch('/api/auth/login', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ email }),
       })
+
+      const data = await res.json()
+
+      if (!res.ok) {
+        setMessage({ type: 'error', text: data.error })
+      } else {
+        setMessage({
+          type: 'success',
+          text: 'Check your email for the magic link!',
+        })
+      }
+    } catch {
+      setMessage({ type: 'error', text: 'An error occurred. Please try again.' })
+    } finally {
+      setLoading(false)
     }
   }
 
