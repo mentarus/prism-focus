@@ -19,10 +19,14 @@ export default function LoginPage() {
     setLoading(true)
     setMessage(null)
 
+    const redirectUrl = `${process.env.NEXT_PUBLIC_APP_URL || window.location.origin}/auth/callback`
+    console.log('Magic link redirect URL:', redirectUrl)
+    console.log('NEXT_PUBLIC_APP_URL:', process.env.NEXT_PUBLIC_APP_URL)
+
     const { error } = await supabase.auth.signInWithOtp({
       email,
       options: {
-        emailRedirectTo: `${process.env.NEXT_PUBLIC_APP_URL || window.location.origin}/auth/callback`,
+        emailRedirectTo: redirectUrl,
       },
     })
 
