@@ -11,6 +11,7 @@ export function useOnboarding() {
   const router = useRouter()
 
   const saveOnboarding = async (data: any) => {
+    console.log('saveOnboarding called')
     setLoading(true)
     setError(null)
 
@@ -20,6 +21,7 @@ export function useOnboarding() {
       } = await supabase.auth.getUser()
 
       if (!user) throw new Error('Not authenticated')
+      console.log('User authenticated:', user.id)
 
       console.log('Saving onboarding data for user:', user.id)
       console.log('Form data:', data)

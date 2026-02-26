@@ -118,8 +118,11 @@ export default function OnboardingPage() {
   }
 
   const handleComplete = async () => {
+    console.log('handleComplete called')
     try {
+      console.log('Calling saveOnboarding...')
       await saveOnboarding(formData)
+      console.log('saveOnboarding completed, clearing data and redirecting...')
       clearSavedData()
       router.push('/dashboard')
     } catch (err) {
