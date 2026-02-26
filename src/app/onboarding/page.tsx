@@ -124,7 +124,10 @@ export default function OnboardingPage() {
       await saveOnboarding(formData)
       console.log('saveOnboarding completed, clearing data and redirecting...')
       clearSavedData()
+      console.log('About to call router.push(/dashboard)')
+      await new Promise(resolve => setTimeout(resolve, 500)) // Small delay to ensure DB write
       router.push('/dashboard')
+      console.log('router.push called')
     } catch (err) {
       console.error('Failed to save onboarding:', err)
     }
