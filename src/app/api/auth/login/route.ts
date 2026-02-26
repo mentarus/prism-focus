@@ -9,6 +9,7 @@ export async function POST(request: NextRequest) {
     const supabase = await createClient()
     console.log('Supabase client created')
 
+    console.log('NEXT_PUBLIC_APP_URL value:', process.env.NEXT_PUBLIC_APP_URL)
     const redirectUrl = `${process.env.NEXT_PUBLIC_APP_URL}/auth/callback`
     console.log('Redirect URL:', redirectUrl)
 
