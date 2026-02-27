@@ -1,5 +1,6 @@
 import { createServerClient } from '@supabase/ssr'
 import { NextResponse, type NextRequest } from 'next/server'
+import { debug } from '@/lib/debug'
 
 export async function middleware(request: NextRequest) {
   let response = NextResponse.next({
@@ -59,7 +60,7 @@ export async function middleware(request: NextRequest) {
 
     // Redirect to onboarding if not completed and not already there
     if (!onboardingCompleted && !isOnboardingPage && !isLoginPage) {
-      console.log('Middleware redirecting to /onboarding - onboardingCompleted:', onboardingCompleted, 'path:', request.nextUrl.pathname)
+      debug('Middleware redirecting to /onboarding - onboardingCompleted:', onboardingCompleted, 'path:', request.nextUrl.pathname)
       return NextResponse.redirect(new URL('/onboarding', request.url))
     }
 

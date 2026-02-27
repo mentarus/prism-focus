@@ -84,3 +84,16 @@ export function useCompanySearch(search: string) {
     enabled: search.length >= 2,
   })
 }
+
+export async function fetchCompanyDetails(companyId: string) {
+  const supabase = createClient()
+
+  const { data, error } = await supabase
+    .from('companies')
+    .select('id, name, slug, tagline, description, website, logo_url, tags')
+    .eq('id', companyId)
+    .single()
+
+  if (error) throw error
+  return data
+}

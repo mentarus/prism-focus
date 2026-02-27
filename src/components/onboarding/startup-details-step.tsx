@@ -8,7 +8,7 @@ import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/com
 import { Badge } from '@/components/ui/badge'
 import { Rocket, ArrowLeft } from 'lucide-react'
 import { useState, useRef, useEffect } from 'react'
-import { useCompanySearch } from '@/hooks/use-companies'
+import { useCompanySearch, fetchCompanyDetails } from '@/hooks/use-companies'
 import { ImageUpload } from '@/components/shared/image-upload'
 
 interface StartupDetailsStepProps {
@@ -43,6 +43,7 @@ export function StartupDetailsStep({ data, updateData, onNext, onBack }: Startup
   const [tagInput, setTagInput] = useState('')
   const [showSuggestions, setShowSuggestions] = useState(false)
   const [companySearch, setCompanySearch] = useState('')
+  const [loadingCompanyId, setLoadingCompanyId] = useState<string | null>(null)
   const { data: suggestions } = useCompanySearch(companySearch)
   const suggestionsRef = useRef<HTMLDivElement>(null)
 
@@ -70,6 +71,26 @@ export function StartupDetailsStep({ data, updateData, onNext, onBack }: Startup
     if (tagInput.trim() && !data.company_tags?.includes(tagInput.trim())) {
       updateData({ company_tags: [...(data.company_tags || []), tagInput.trim()] })
       setTagInput('')
+    }
+  }
+
+  const handleCompanySelect = async (company: any) => {
+    setLoadingCompanyId(company.id)
+    try {
+      const fullCompany = await fetchCompanyDetails(company.id)
+      updateData({
+        company_name: fullCompany.name,
+        company_tagline: fullCompany.tagline || '',
+        company_description: fullCompany.description || '',
+        company_website: fullCompany.website || '',
+        company_logo_url: fullCompany.logo_url || '',
+        company_tags: fullCompany.tags || [],
+      })
+      setShowSuggestions(false)
+    } catch (err) {
+      console.error('Failed to fetch company details:', err)
+    } finally {
+      setLoadingCompanyId(null)
     }
   }
 
@@ -123,16 +144,11 @@ export function StartupDetailsStep({ data, updateData, onNext, onBack }: Startup
                   <button
                     key={company.id}
                     type="button"
-                    className="w-full text-left px-3 py-2 hover:bg-gray-100 border-b last:border-b-0"
-                    onClick={() => {
-                      updateData({
-                        company_name: company.name,
-                        company_tagline: company.tagline || data.company_tagline,
-                      })
-                      setShowSuggestions(false)
-                    }}
+                    className="w-full text-left px-3 py-2 hover:bg-gray-100 border-b last:border-b-0 disabled:opacity-50"
+                    onClick={() => handleCompanySelect(company)}
+                    disabled={loadingCompanyId === company.id}
                   >
-                    <div className="font-medium">{company.name}</div>
+                    <div className="font-medium">{loadingCompanyId === company.id ? 'Loading...' : company.name}</div>
                     {company.tagline && (
                       <div className="text-xs text-gray-600">{company.tagline}</div>
                     )}

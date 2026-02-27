@@ -3,6 +3,7 @@
 import { useState, useEffect } from 'react'
 import { useRouter } from 'next/navigation'
 import { useOnboarding } from '@/hooks/use-onboarding'
+import { debug, debugError } from '@/lib/debug'
 import { PersonalInfoStep } from '@/components/onboarding/personal-info-step'
 import { StartupDetailsStep } from '@/components/onboarding/startup-details-step'
 import { InterestsStep } from '@/components/onboarding/interests-step'
@@ -118,18 +119,16 @@ export default function OnboardingPage() {
   }
 
   const handleComplete = async () => {
-    console.log('handleComplete called')
+    debug('handleComplete called')
     try {
-      console.log('Calling saveOnboarding...')
+      debug('Calling saveOnboarding...')
       await saveOnboarding(formData)
-      console.log('saveOnboarding completed, clearing data and redirecting...')
+      debug('saveOnboarding completed, clearing data and redirecting...')
       clearSavedData()
-      console.log('About to call router.push(/dashboard)')
-      await new Promise(resolve => setTimeout(resolve, 500)) // Small delay to ensure DB write
       router.push('/dashboard')
-      console.log('router.push called')
+      debug('router.push called')
     } catch (err) {
-      console.error('Failed to save onboarding:', err)
+      debugError('Failed to save onboarding:', err)
     }
   }
 
