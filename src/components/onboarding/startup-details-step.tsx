@@ -10,6 +10,7 @@ import { Rocket, ArrowLeft } from 'lucide-react'
 import { useState, useRef, useEffect } from 'react'
 import { useCompanySearch, fetchCompanyDetails } from '@/hooks/use-companies'
 import { ImageUpload } from '@/components/shared/image-upload'
+import { debug } from '@/lib/debug'
 
 interface StartupDetailsStepProps {
   data: any
@@ -77,7 +78,9 @@ export function StartupDetailsStep({ data, updateData, onNext, onBack }: Startup
   const handleCompanySelect = async (company: any) => {
     setLoadingCompanyId(company.id)
     try {
+      debug('Fetching full company details for:', company.id)
       const fullCompany = await fetchCompanyDetails(company.id)
+      debug('Received company details:', fullCompany)
       updateData({
         company_name: fullCompany.name,
         company_tagline: fullCompany.tagline || '',
@@ -86,9 +89,11 @@ export function StartupDetailsStep({ data, updateData, onNext, onBack }: Startup
         company_logo_url: fullCompany.logo_url || '',
         company_tags: fullCompany.tags || [],
       })
+      debug('Updated form data with company details')
       setShowSuggestions(false)
     } catch (err) {
       console.error('Failed to fetch company details:', err)
+      alert(`Error loading company details: ${err instanceof Error ? err.message : String(err)}`)
     } finally {
       setLoadingCompanyId(null)
     }
