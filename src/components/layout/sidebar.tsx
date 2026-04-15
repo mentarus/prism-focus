@@ -5,7 +5,7 @@ import Link from 'next/link'
 import Image from 'next/image'
 import { usePathname, useRouter } from 'next/navigation'
 import { cn } from '@/lib/utils'
-import { Home, Users, Building2, LogOut, User } from 'lucide-react'
+import { Home, Users, Building2, LogOut, ShieldCheck } from 'lucide-react'
 import { createClient } from '@/lib/supabase/client'
 import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar'
 import { Button } from '@/components/ui/button'
@@ -21,6 +21,7 @@ export function Sidebar({ onNavigate }: { onNavigate?: () => void } = {}) {
   const router = useRouter()
   const supabase = createClient()
   const [profile, setProfile] = useState<any>(null)
+  const [pendingCount, setPendingCount] = useState(0)
 
   useEffect(() => {
     const fetchProfile = async () => {
@@ -32,6 +33,15 @@ export function Sidebar({ onNavigate }: { onNavigate?: () => void } = {}) {
           .eq('id', user.id)
           .single()
         setProfile(data)
+
+        if (data?.is_admin) {
+          const { count } = await supabase
+            .from('profiles')
+            .select('id', { count: 'exact', head: true })
+            .eq('onboarding_completed', true)
+            .eq('is_approved', false)
+          setPendingCount(count ?? 0)
+        }
       }
     }
     fetchProfile()
@@ -75,6 +85,27 @@ export function Sidebar({ onNavigate }: { onNavigate?: () => void } = {}) {
             </Link>
           )
         })}
+
+        {profile?.is_admin && (
+          <Link
+            href="/admin/approvals"
+            onClick={onNavigate}
+            className={cn(
+              'flex items-center gap-3 rounded-lg px-3 py-2 text-sm font-medium transition-colors mt-4 border-t pt-4',
+              pathname.startsWith('/admin')
+                ? 'bg-purple-50 text-purple-700'
+                : 'text-purple-600 hover:bg-purple-50 hover:text-purple-700'
+            )}
+          >
+            <ShieldCheck className="h-5 w-5" />
+            <span>Approvals</span>
+            {pendingCount > 0 && (
+              <span className="ml-auto rounded-full bg-purple-600 px-2 py-0.5 text-xs text-white">
+                {pendingCount}
+              </span>
+            )}
+          </Link>
+        )}
       </nav>
 
       {/* User Profile Section */}

@@ -6,7 +6,7 @@ import { Sidebar } from './sidebar'
 import { Menu, X } from 'lucide-react'
 
 // Pages that should render without the sidebar
-const BARE_PAGES = ['/login', '/auth', '/onboarding']
+const BARE_PAGES = ['/login', '/auth', '/onboarding', '/pending-approval']
 
 function isBare(pathname: string) {
   return BARE_PAGES.some((p) => pathname.startsWith(p))

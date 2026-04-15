@@ -45,34 +45,49 @@ export async function middleware(request: NextRequest) {
     return NextResponse.redirect(new URL('/login', request.url))
   }
 
-  // Check onboarding status for authenticated users
+  // Check onboarding and approval status for authenticated users
   if (user) {
-    // Fetch user profile to check onboarding status
     const { data: profile } = await supabase
       .from('profiles')
-      .select('onboarding_completed')
+      .select('onboarding_completed, is_approved, is_admin')
       .eq('id', user.id)
       .single()
 
     const onboardingCompleted = profile?.onboarding_completed ?? false
-    const isOnboardingPage = request.nextUrl.pathname.startsWith('/onboarding')
-    const isLoginPage = request.nextUrl.pathname === '/login'
+    const isApproved = profile?.is_approved ?? false
+    const isAdmin = profile?.is_admin ?? false
+    const pathname = request.nextUrl.pathname
+    const isOnboardingPage = pathname.startsWith('/onboarding')
+    const isLoginPage = pathname === '/login'
+    const isPendingPage = pathname === '/pending-approval'
 
-    // Redirect to onboarding if not completed and not already there
+    // Step 1: Must complete onboarding first
     if (!onboardingCompleted && !isOnboardingPage && !isLoginPage) {
-      debug('Middleware redirecting to /onboarding', { onboardingCompleted, path: request.nextUrl.pathname })
+      debug('Middleware redirecting to /onboarding', { path: pathname })
       return NextResponse.redirect(new URL('/onboarding', request.url))
     }
 
-    // Redirect to dashboard if onboarding is completed but user is on onboarding page
+    // Step 2: After onboarding, must be approved (admins bypass this)
+    if (onboardingCompleted && !isApproved && !isAdmin && !isPendingPage && !isOnboardingPage && !isLoginPage) {
+      debug('Middleware redirecting to /pending-approval', { path: pathname })
+      return NextResponse.redirect(new URL('/pending-approval', request.url))
+    }
+
+    // Redirect away from onboarding if already completed
     if (onboardingCompleted && isOnboardingPage) {
+      return NextResponse.redirect(new URL('/dashboard', request.url))
+    }
+
+    // Redirect away from pending page if already approved
+    if (isPendingPage && (isApproved || isAdmin)) {
       return NextResponse.redirect(new URL('/dashboard', request.url))
     }
 
     // Redirect authenticated users away from login page
     if (isLoginPage) {
-      const redirectUrl = onboardingCompleted ? '/dashboard' : '/onboarding'
-      return NextResponse.redirect(new URL(redirectUrl, request.url))
+      if (!onboardingCompleted) return NextResponse.redirect(new URL('/onboarding', request.url))
+      if (!isApproved && !isAdmin) return NextResponse.redirect(new URL('/pending-approval', request.url))
+      return NextResponse.redirect(new URL('/dashboard', request.url))
     }
   }
 
